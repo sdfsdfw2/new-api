@@ -278,7 +278,9 @@ export type OperationsSettings = {
   QuotaRemindThreshold: string
   AutomaticDisableChannelEnabled: boolean
   AutomaticEnableChannelEnabled: boolean
+  AutomaticDeleteChannelEnabled: boolean
   AutomaticDisableKeywords: string
+  AutomaticDeleteKeywords: string
   AutomaticDisableStatusCodes: string
   AutomaticRetryStatusCodes: string
   'monitor_setting.auto_test_channel_enabled': boolean
