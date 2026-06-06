@@ -922,10 +922,7 @@ func testAllChannels(notify bool) error {
 			testAllChannelsLock.Unlock()
 		}()
 
-		for _, channel := range channels {
-			if channel.Status == common.ChannelStatusManuallyDisabled {
-				continue
-			}
+for _, channel := range channels {
 			isChannelEnabled := channel.Status == common.ChannelStatusEnabled
 			tik := time.Now()
 			result := testChannel(channel, testUserID, "", "", shouldUseStreamForAutomaticChannelTest(channel))
@@ -939,14 +936,19 @@ func testAllChannels(notify bool) error {
 				shouldBanChannel = service.ShouldDisableChannel(result.newAPIError)
 			}
 
-			// check auto-delete first (takes priority over disable)
+			// check auto-delete first (takes priority over disable) - runs on ALL channels regardless of status
 			if newAPIError != nil && service.ShouldDeleteChannel(result.newAPIError) {
-				if isChannelEnabled && channel.GetAutoBan() {
+				if channel.GetAutoBan() {
 					processChannelError(result.context, *types.NewChannelError(channel.Id, channel.Type, channel.Name, channel.ChannelInfo.IsMultiKey, common.GetContextKeyString(result.context, constant.ContextKeyChannelKey), channel.GetAutoBan()), newAPIError)
 				}
 				if shouldBanChannel {
 					shouldBanChannel = false
 				}
+			}
+
+			// skip manually disabled channels for the disable check (delete already handled above)
+			if channel.Status == common.ChannelStatusManuallyDisabled {
+				continue
 			}
 
 			// 当错误检查通过，才检查响应时间
